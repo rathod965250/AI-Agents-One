@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,9 @@ import SEOHead from '@/components/SEOHead';
 import Footer from '@/components/Footer';
 import { TagInput } from "@/components/ui/TagInput";
 import { FileUploader } from "@/components/ui/FileUploader";
+import { supabase } from '@/integrations/supabase/client';
+import EnhancedMetaTags from '@/components/seo/EnhancedMetaTags';
+import AdvancedSEO from '@/components/seo/AdvancedSEO';
 
 const Submit = () => {
   const { user, loading } = useAuth();
@@ -29,6 +32,62 @@ const Submit = () => {
     errors,
     validateForm
   } = useSubmissionForm();
+
+  const [categories, setCategories] = useState<string[]>([]);
+  const [pricingTypes, setPricingTypes] = useState<{ value: string, label: string }[]>([]);
+
+  useEffect(() => {
+    // Fetch enum values for category and pricing_type from agent_submissions table
+    const fetchEnums = async () => {
+      try {
+        console.log('Fetching enum values...');
+        
+        // Fetch agent_category from agent_submissions
+        const { data: catData, error: catError } = await supabase.rpc('enum_values', { table_name: 'agent_submissions', column_name: 'category' });
+        console.log('Category data:', catData, 'Category error:', catError);
+        
+        if (!catError && Array.isArray(catData)) {
+          setCategories(catData);
+        } else {
+          console.error('Failed to fetch categories:', catError);
+          // Fallback categories
+          setCategories(['productivity', 'creative', 'development', 'business', 'education', 'healthcare', 'finance', 'marketing', 'research', 'other']);
+        }
+        
+        // Fetch pricing_type from agent_submissions
+        const { data: priceData, error: priceError } = await supabase.rpc('enum_values', { table_name: 'agent_submissions', column_name: 'pricing_type' });
+        console.log('Pricing data:', priceData, 'Pricing error:', priceError);
+        
+        if (!priceError && Array.isArray(priceData)) {
+          setPricingTypes(priceData.map((v: string) => ({ value: v, label: v.charAt(0).toUpperCase() + v.slice(1) })));
+        } else {
+          console.error('Failed to fetch pricing types:', priceError);
+          // Fallback pricing types
+          setPricingTypes([
+            { value: 'free', label: 'Free' },
+            { value: 'freemium', label: 'Freemium' },
+            { value: 'paid', label: 'Paid' },
+            { value: 'subscription', label: 'Subscription' },
+            { value: 'one_time', label: 'One Time' },
+            { value: 'enterprise', label: 'Enterprise' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching enum values:', error);
+        // Set fallback values
+        setCategories(['productivity', 'creative', 'development', 'business', 'education', 'healthcare', 'finance', 'marketing', 'research', 'other']);
+        setPricingTypes([
+          { value: 'free', label: 'Free' },
+          { value: 'freemium', label: 'Freemium' },
+          { value: 'paid', label: 'Paid' },
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'one_time', label: 'One Time' },
+          { value: 'enterprise', label: 'Enterprise' }
+        ]);
+      }
+    };
+    fetchEnums();
+  }, []);
 
   // SEO structured data for submit page
   const submitStructuredData = {
@@ -51,9 +110,12 @@ const Submit = () => {
   if (loading) {
     return (
       <>
-        <SEOHead
+        <EnhancedMetaTags
           title="Loading - Submit AI Agent | AI Hub"
           description="Loading submission form..."
+          keywords="submit AI agent, loading"
+          canonicalUrl="https://ai-agents-hub.com/submit"
+          ogType="website"
           noIndex={true}
         />
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/20">
@@ -100,21 +162,18 @@ const Submit = () => {
     updateFormData({ screenshotFile: file });
   };
 
-  const categories = [
-    "conversational_ai", "image_generation", "content_creation", "data_analysis", "code_assistant", "voice_ai", "automation", "research", "translation", "customer_support", "marketing", "productivity", "education", "healthcare", "finance", "gaming", "ai_agent_builders", "coding", "personal_assistant", "general_purpose", "digital_workers", "design", "sales", "business_intelligence", "hr", "science", "other"
-  ];
-  const pricingTypes = [
-    { value: "free", label: "Free - No payment required" },
-    { value: "freemium", label: "Freemium - Free & paid plans" },
-    { value: "paid", label: "Paid - One-time or recurring" },
-    { value: "subscription", label: "Subscription - Recurring payment" }
-  ];
-
   return (
     <>
-      <SEOHead
+      <EnhancedMetaTags
         title="Submit Your AI Agent | AI Hub"
         description="Showcase your creation to the world. Submit your AI agent to our directory for instant visibility and community feedback."
+        keywords="submit AI agent, add AI tool, AI agent submission, AI directory, list AI tool"
+        canonicalUrl="https://ai-agents-hub.com/submit"
+        ogType="website"
+      />
+      <AdvancedSEO
+        type="submit"
+        data={submitStructuredData}
       />
       <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/20">
         <Navigation />

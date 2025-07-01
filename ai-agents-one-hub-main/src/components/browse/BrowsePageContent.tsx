@@ -1,14 +1,11 @@
-
-import AgentCardLine from '@/components/AgentCardLine';
+import AgentCard from '@/components/AgentCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tables } from '@/integrations/supabase/types';
+import { Agent } from '@/integrations/supabase/types';
 
-type Agent = Tables<'ai_agents'>;
-
-interface BrowsePageContentProps {
-  agents: Agent[] | undefined;
+type BrowsePageContentProps = {
+  agents: Agent[] | null;
   isLoading: boolean;
-}
+};
 
 const BrowsePageContent = ({ agents, isLoading }: BrowsePageContentProps) => {
   if (isLoading) {
@@ -36,7 +33,7 @@ const BrowsePageContent = ({ agents, isLoading }: BrowsePageContentProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {agents?.map(agent => (
-        <AgentCardLine key={agent.id} agent={agent} />
+        <AgentCard key={agent.id} agent={agent} />
       ))}
     </div>
   );

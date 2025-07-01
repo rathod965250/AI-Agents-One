@@ -1,8 +1,7 @@
-
 import AgentCardSimple from './AgentCardSimple';
-import { Tables } from '@/integrations/supabase/types';
+import { Agent } from '@/integrations/supabase/types';
 
-const BrowseAgentCard = ({ agent }: { agent: Tables<'ai_agents'> }) => (
+const BrowseAgentCard = ({ agent }: { agent: Agent }) => (
   <AgentCardSimple agent={agent} />
 );
 

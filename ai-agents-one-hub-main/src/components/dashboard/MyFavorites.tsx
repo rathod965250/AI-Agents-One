@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, Star, Eye, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import AgentCard from '@/components/AgentCard';
 
 const MyFavorites = () => {
   const { user } = useAuth();
@@ -89,79 +90,12 @@ const MyFavorites = () => {
       </div>
 
       {favorites && favorites.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites.map((favorite) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const agent = (favorite as any).ai_agents;
             if (!agent) return null;
-
-            return (
-              <Card key={favorite.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarFallback className="text-lg">
-                        {agent.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-lg">{agent.name}</h3>
-                          <p className="text-gray-600 mb-3">AI Agent</p>
-                          
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <Badge variant="outline">
-                              {formatCategory(agent.category)}
-                            </Badge>
-                            <Badge className={getPricingColor(agent.pricing_type)}>
-                              {agent.pricing_type.charAt(0).toUpperCase() + agent.pricing_type.slice(1)}
-                            </Badge>
-                          </div>
-                          
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span>{agent.average_rating || '0.0'}</span>
-                              <span>({agent.total_reviews || 0})</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="h-4 w-4" />
-                              <span>{agent.view_count || 0} views</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveFavorite(favorite.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Heart className="h-4 w-4 fill-current" />
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 mt-4">
-                        <Button asChild>
-                          <a href={`/agent/${agent.slug}`}>
-                            View Details
-                          </a>
-                        </Button>
-                        
-                        <Button variant="outline" asChild>
-                          <a href={agent.website_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-1" />
-                            Visit Site
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
+            return <AgentCard key={favorite.id} agent={agent} />;
           })}
         </div>
       ) : (

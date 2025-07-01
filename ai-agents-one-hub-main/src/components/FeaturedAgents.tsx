@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
-import AgentCardLine from './AgentCardLine';
+import { Agent } from '@/integrations/supabase/types';
+import AgentCard from './AgentCard';
 import { 
   Pagination,
   PaginationContent,
@@ -14,8 +14,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 
 const AGENTS_PER_PAGE = 20;
-
-type Agent = Tables<'ai_agents'>;
 
 interface FeaturedAgentsProps {
   searchResults?: Agent[];
@@ -127,7 +125,7 @@ const FeaturedAgents = ({ searchResults, searchQuery }: FeaturedAgentsProps) => 
             {/* Agents Grid - 4 columns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {paginatedSearchResults.map(agent => (
-                <AgentCardLine key={agent.id} agent={agent} />
+                <AgentCard key={agent.id} agent={agent} />
               ))}
             </div>
 

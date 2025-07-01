@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Footer from '@/components/Footer';
+import mixpanel from 'mixpanel-browser';
 
 const Auth = () => {
   const { user } = useAuth();
@@ -80,7 +81,14 @@ const Auth = () => {
           },
         });
         
-        // The useEffect above will handle the redirect when user state updates
+        if (!error && type === 'signUp') {
+          // Track sign up event in Mixpanel
+          mixpanel.track('Sign Up', {
+            Country: (navigator.language || '').split('-')[1] || 'Unknown',
+            OS: navigator.platform || 'Unknown',
+            Source: document.referrer || 'Direct',
+          });
+        }
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';

@@ -12,6 +12,8 @@ import MyReviews from '@/components/dashboard/MyReviews';
 import MyFavorites from '@/components/dashboard/MyFavorites';
 import ProfileSettings from '@/components/dashboard/ProfileSettings';
 import UserSidebar from '@/components/dashboard/UserSidebar';
+import EnhancedMetaTags from '@/components/seo/EnhancedMetaTags';
+import AdvancedSEO from '@/components/seo/AdvancedSEO';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -51,29 +53,43 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navigation />
-      <Breadcrumbs />
-      
-      <div className="flex-1">
-        <SidebarProvider>
-          <div className="flex">
-            <UserSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-            <SidebarInset>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <User className="h-6 w-6" />
-                  <h1 className="text-2xl font-bold">Dashboard</h1>
+    <>
+      <EnhancedMetaTags
+        title="User Dashboard | AI Hub"
+        description="Your personal dashboard for managing AI agent submissions, reviews, favorites, and profile settings."
+        keywords="user dashboard, AI agent management, profile, submissions, reviews, favorites"
+        canonicalUrl="https://ai-agents-hub.com/dashboard"
+        ogType="website"
+        noIndex={true}
+      />
+      <AdvancedSEO
+        type="dashboard"
+        data={user}
+      />
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
+        <Breadcrumbs />
+        
+        <div className="flex-1">
+          <SidebarProvider>
+            <div className="flex">
+              <UserSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+              <SidebarInset>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    <User className="h-6 w-6" />
+                    <h1 className="text-2xl font-bold">Dashboard</h1>
+                  </div>
+                  {renderContent()}
                 </div>
-                {renderContent()}
-              </div>
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
+        </div>
+        
+        <Footer />
       </div>
-      
-      <Footer />
-    </div>
+    </>
   );
 };
 

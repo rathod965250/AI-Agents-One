@@ -13,6 +13,7 @@ import { BookOpen, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Agent } from "@/integrations/supabase/types";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import PageViewTracker from '@/components/analytics/PageViewTracker';
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<Agent[]>([]);
@@ -97,6 +98,7 @@ const Index = () => {
 
   return (
     <>
+      <PageViewTracker />
       <EnhancedMetaTags
         title="AI Agents Directory - Discover 3,500+ Best AI Tools & Assistants | AI Hub"
         description="Find the perfect AI agent for your needs. Browse chatbots, content creators, code assistants, and productivity tools. Compare features, read reviews, and discover new AI innovations daily."

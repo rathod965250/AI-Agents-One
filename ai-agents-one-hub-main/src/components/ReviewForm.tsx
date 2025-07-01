@@ -35,6 +35,13 @@ interface ReviewFormProps {
   existingReview?: Tables<'agent_reviews'>;
 }
 
+// Utility to format a string to array for pros/cons
+const formatToArray = (input: string | undefined | null): string[] => {
+  if (!input) return [];
+  const trimmed = input.trim().toLowerCase();
+  return !trimmed || trimmed === 'none' ? [] : [input];
+};
+
 const ReviewForm = ({ agent, onSubmitSuccess, existingReview }: ReviewFormProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,6 +91,8 @@ const ReviewForm = ({ agent, onSubmitSuccess, existingReview }: ReviewFormProps)
 
     setIsSubmitting(true);
     try {
+      const safePros = formatToArray(Array.isArray(data.pros) ? data.pros.join(', ') : data.pros);
+      const safeCons = formatToArray(Array.isArray(data.cons) ? data.cons.join(', ') : data.cons);
       const reviewData = {
         agent_id: agent.id,
         user_id: user.id,
@@ -91,8 +100,8 @@ const ReviewForm = ({ agent, onSubmitSuccess, existingReview }: ReviewFormProps)
         content: data.content,
         rating: data.rating,
         use_case: data.useCase || null,
-        pros: data.pros || [],
-        cons: data.cons || [],
+        pros: safePros,
+        cons: safeCons,
       };
 
       if (existingReview) {
@@ -218,6 +227,7 @@ const ReviewForm = ({ agent, onSubmitSuccess, existingReview }: ReviewFormProps)
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <FormLabel>Pros (Optional)</FormLabel>
+                <span className="text-xs text-gray-500 ml-2">Leave blank if none — don't type 'none'.</span>
                 <div className="space-y-2 mt-2">
                   {pros.map((pro, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -249,6 +259,7 @@ const ReviewForm = ({ agent, onSubmitSuccess, existingReview }: ReviewFormProps)
 
               <div>
                 <FormLabel>Cons (Optional)</FormLabel>
+                <span className="text-xs text-gray-500 ml-2">Leave blank if none — don't type 'none'.</span>
                 <div className="space-y-2 mt-2">
                   {cons.map((con, index) => (
                     <div key={index} className="flex items-center gap-2">

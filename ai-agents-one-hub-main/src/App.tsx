@@ -6,35 +6,37 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
+import mixpanel from 'mixpanel-browser';
 
 // Lazy load components for code splitting
 const Index = lazy(() => import("./pages/Index"));
 const Browse = lazy(() => import("./pages/Browse"));
 const Guide = lazy(() => import("./pages/Guide"));
-const AgentDetail = lazy(() => import("./pages/AgentDetail"));
+// const AgentDetail = lazy(() => import("./pages/AgentDetail")); // Temporarily disabled for debugging
+import AgentDetail from "./pages/AgentDetail";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Submit = lazy(() => import("./pages/Submit"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Auth = lazy(() => import("./pages/Auth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Compare = lazy(() => import("./pages/Compare"));
+const Categories = lazy(() => import("./pages/Categories"));
+const CategoryAgents = lazy(() => import("./pages/CategoryAgents"));
 
 const router = createBrowserRouter([
   { path: "/", element: <Index /> },
   { path: "/browse", element: <Browse /> },
+  { path: "/categories", element: <Categories /> },
+  { path: "/categories/:slug", element: <CategoryAgents /> },
   { path: "/guide", element: <Guide /> },
   { path: "/agent/:slug", element: <AgentDetail /> },
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/submit", element: <Submit /> },
   { path: "/auth", element: <Auth /> },
   { path: "/admin/*", element: <Admin /> },
+  { path: "/compare", element: <Compare /> },
   { path: "*", element: <NotFound /> },
-// @ts-ignore - This is necessary to bypass a persistent, incorrect linter error.
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-  },
-});
+]);
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, ThumbsUp, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import AgentCard from '@/components/AgentCard';
 
 const MyReviews = () => {
   const { user } = useAuth();
@@ -108,109 +109,60 @@ const MyReviews = () => {
       </div>
 
       {reviews && reviews.length > 0 ? (
-        <div className="space-y-4">
-          {reviews.map((review) => (
-            <Card key={review.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      src={(review as any).ai_agents?.logo_url || '/placeholder.svg'}
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      alt={(review as any).ai_agents?.name}
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
-                    <div>
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      <h3 className="font-semibold">{(review as any).ai_agents?.name}</h3>
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < review.rating
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                        <span className="text-sm text-gray-600 ml-1">
-                          {review.rating}/5
-                        </span>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {reviews.map((review) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const agent = (review as any).ai_agents;
+            if (!agent) return null;
+            return (
+              <div key={review.id} className="flex flex-col gap-2">
+                <AgentCard agent={agent} />
+                <div className="bg-white rounded-lg shadow p-4 mt-2">
+                  <div className="flex items-center gap-1 mb-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
+                    <span className="text-sm text-gray-600 ml-1">{review.rating}/5</span>
+                  </div>
+                  <h4 className="font-medium mb-1">{review.title}</h4>
+                  <p className="text-gray-700 mb-2">{review.content}</p>
+                  {review.pros && review.pros.length > 0 && (
+                    <div className="mb-1">
+                      <span className="font-medium text-green-700">Pros: </span>
+                      <span className="text-gray-600">{review.pros.join(', ')}</span>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(review.id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(review.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">{review.title}</h4>
-                  <p className="text-gray-700">{review.content}</p>
-                </div>
-
-                {review.pros && review.pros.length > 0 && (
-                  <div className="mb-3">
-                    <h5 className="font-medium text-green-700 mb-1">Pros:</h5>
-                    <ul className="list-disc list-inside text-sm text-gray-600">
-                      {review.pros.map((pro, index) => (
-                        <li key={index}>{pro}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {review.cons && review.cons.length > 0 && (
-                  <div className="mb-3">
-                    <h5 className="font-medium text-red-700 mb-1">Cons:</h5>
-                    <ul className="list-disc list-inside text-sm text-gray-600">
-                      {review.cons.map((con, index) => (
-                        <li key={index}>{con}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <ThumbsUp className="h-4 w-4" />
-                      <span>{review.helpful_count || 0} helpful</span>
+                  )}
+                  {review.cons && review.cons.length > 0 && (
+                    <div className="mb-1">
+                      <span className="font-medium text-red-700">Cons: </span>
+                      <span className="text-gray-600">{review.cons.join(', ')}</span>
                     </div>
+                  )}
+                  <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
+                    <span>{review.helpful_count || 0} helpful</span>
                     {review.is_verified_purchase && (
-                      <Badge className="bg-blue-100 text-blue-800">
-                        Verified Purchase
-                      </Badge>
+                      <Badge className="bg-blue-100 text-blue-800">Verified Purchase</Badge>
                     )}
                   </div>
-                  <span>{new Date(review.created_at || '').toLocaleDateString()}</span>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(review.id)}><Edit className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(review.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <Card>
           <CardContent className="text-center py-12">
-            <p className="text-gray-500">No reviews written yet</p>
-            <Button className="mt-4" asChild>
-              <a href="/browse">Browse Agents to Review</a>
+            <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 mb-4">No reviews yet</p>
+            <Button asChild>
+              <a href="/browse">Write a Review</a>
             </Button>
           </CardContent>
         </Card>

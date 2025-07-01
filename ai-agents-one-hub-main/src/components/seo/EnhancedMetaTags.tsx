@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 
 interface EnhancedMetaTagsProps {
@@ -15,6 +14,7 @@ interface EnhancedMetaTagsProps {
   articleSection?: string;
   locale?: string;
   alternateUrls?: { hreflang: string; href: string }[];
+  noIndex?: boolean;
 }
 
 const EnhancedMetaTags = ({
@@ -30,7 +30,8 @@ const EnhancedMetaTags = ({
   modifiedTime,
   articleSection,
   locale = "en_US",
-  alternateUrls = []
+  alternateUrls = [],
+  noIndex = false
 }: EnhancedMetaTagsProps) => {
   useEffect(() => {
     // Update document title
@@ -45,9 +46,9 @@ const EnhancedMetaTags = ({
       } else {
         element = document.createElement('meta');
         if (property) {
-          element.setAttribute('property', selector.replace('meta[property="', '').replace('"]', ''));
+          element.setAttribute('property', selector.replace('meta[property=\"', '').replace('\"]', ''));
         } else {
-          element.setAttribute('name', selector.replace('meta[name="', '').replace('"]', ''));
+          element.setAttribute('name', selector.replace('meta[name=\"', '').replace('\"]', ''));
         }
         element.content = content;
         document.head.appendChild(element);
@@ -58,8 +59,8 @@ const EnhancedMetaTags = ({
     updateMetaTag('meta[name="description"]', description);
     updateMetaTag('meta[name="keywords"]', keywords);
     updateMetaTag('meta[name="author"]', author);
-    updateMetaTag('meta[name="robots"]', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
-    updateMetaTag('meta[name="googlebot"]', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    updateMetaTag('meta[name="robots"]', noIndex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    updateMetaTag('meta[name="googlebot"]', noIndex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
     
     // Open Graph meta tags
     updateMetaTag('meta[property="og:title"]', title, true);
@@ -153,7 +154,7 @@ const EnhancedMetaTags = ({
       document.head.appendChild(pageSchemaScript);
     }
 
-  }, [title, description, keywords, canonicalUrl, ogImage, ogType, twitterCard, author, publishedTime, modifiedTime, articleSection, locale, alternateUrls]);
+  }, [title, description, keywords, canonicalUrl, ogImage, ogType, twitterCard, author, publishedTime, modifiedTime, articleSection, locale, alternateUrls, noIndex]);
 
   return null;
 };

@@ -30,6 +30,13 @@ interface SimpleReviewFormProps {
   existingReview?: Tables<'agent_reviews'>;
 }
 
+// Utility to format a string to array for pros/cons
+const formatToArray = (input: string | undefined | null): string[] => {
+  if (!input) return [];
+  const trimmed = input.trim().toLowerCase();
+  return !trimmed || trimmed === 'none' ? [] : [input];
+};
+
 const SimpleReviewForm = ({ agent, onSubmitSuccess, existingReview }: SimpleReviewFormProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,12 +57,16 @@ const SimpleReviewForm = ({ agent, onSubmitSuccess, existingReview }: SimpleRevi
 
     setIsSubmitting(true);
     try {
+      const safePros = formatToArray((data as any).pros);
+      const safeCons = formatToArray((data as any).cons);
       const reviewData = {
         agent_id: agent.id,
         user_id: user.id,
         title: data.title,
         content: data.content,
         rating: data.rating,
+        pros: safePros,
+        cons: safeCons,
       };
 
       if (existingReview) {
@@ -160,6 +171,42 @@ const SimpleReviewForm = ({ agent, onSubmitSuccess, existingReview }: SimpleRevi
                       {content.length}/1000
                     </span>
                   </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="pros"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pros (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Leave blank if none — don't type 'none'."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cons"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cons (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Leave blank if none — don't type 'none'."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

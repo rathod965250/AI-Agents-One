@@ -1,7 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   MessageCircle, 
   Zap, 
@@ -25,7 +23,8 @@ import {
   Languages,
   Mic,
   Settings,
-  MoreHorizontal
+  MoreHorizontal,
+  ArrowRight
 } from 'lucide-react';
 
 // Icon mapping
@@ -57,19 +56,15 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 const CategoriesSection = () => {
   const navigate = useNavigate();
 
-  const { data: categories, isLoading } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    }
-  });
+  // Define popular categories with icons and counts (these will be fetched from the Categories page)
+  const popularCategories = [
+    { name: 'productivity', displayName: 'Productivity', icon: Zap, count: 150 },
+    { name: 'creative', displayName: 'Creative', icon: Palette, count: 120 },
+    { name: 'development', displayName: 'Development', icon: Code, count: 95 },
+    { name: 'business', displayName: 'Business', icon: BarChart3, count: 85 },
+    { name: 'education', displayName: 'Education', icon: GraduationCap, count: 65 },
+    { name: 'healthcare', displayName: 'Healthcare', icon: Heart, count: 45 }
+  ];
 
   const handleCategoryClick = (categoryName: string) => {
     // Navigate to browse page with category filter
@@ -84,26 +79,6 @@ const CategoriesSection = () => {
     navigate('/submit');
   };
 
-  if (isLoading) {
-    return (
-      <section id="categories" className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Browse by Category</h2>
-            <p className="text-base text-gray-600 max-w-2xl mx-auto">
-              Explore AI agents organised by their primary use cases and capabilities.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="h-10 w-32 bg-gray-200 rounded-full animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section id="categories" className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,23 +89,34 @@ const CategoriesSection = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 mb-16">
-          {categories?.map((category) => {
-            const IconComponent = iconMap[category.icon_name || 'MoreHorizontal'] || MoreHorizontal;
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {popularCategories.map((category) => {
+            const IconComponent = category.icon;
             
             return (
               <Button
-                key={category.id}
+                key={category.name}
                 variant="outline"
                 onClick={() => handleCategoryClick(category.name)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full transition-colors border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
               >
                 <IconComponent className="w-4 h-4" />
-                <span>{category.display_name}</span>
-                <span className="text-xs opacity-70">({category.agent_count})</span>
+                <span>{category.displayName}</span>
+                <span className="text-xs opacity-70">({category.count})</span>
               </Button>
             );
           })}
+        </div>
+
+        {/* View All Categories CTA */}
+        <div className="text-center mb-16">
+          <Link 
+            to="/categories"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            View All Categories
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         <div className="text-center">

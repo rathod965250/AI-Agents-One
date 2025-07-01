@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AgentCardSimple from './AgentCardSimple';
 
 interface RelatedAgentsProps {
@@ -14,6 +14,8 @@ interface RelatedAgentsProps {
 }
 
 const RelatedAgents = ({ currentAgentId, currentAgentCategory }: RelatedAgentsProps) => {
+  const navigate = useNavigate();
+  
   const { data: relatedAgents, isLoading } = useQuery({
     queryKey: ['related-agents', currentAgentCategory, currentAgentId],
     queryFn: async () => {
@@ -46,7 +48,7 @@ const RelatedAgents = ({ currentAgentId, currentAgentCategory }: RelatedAgentsPr
         <AgentCardSimple
           key={agent.id}
           agent={agent}
-          onClick={() => window.location.href = `/agent/${agent.slug}`}
+          onClick={() => navigate(`/agent/${agent.slug}`)}
           tabIndex={0}
         />
       ))}

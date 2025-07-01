@@ -28,6 +28,7 @@ export type Agent = {
   total_upvotes?: number;
   view_count?: number;
   launch_date?: string;
+  cass?: string;
   profiles?: { username: string; full_name: string } | null;
   content_flags?: any[];
   [key: string]: any;
@@ -71,12 +72,17 @@ export type Category = {
 
 export type Review = {
   id: string;
+  agent_id: string;
+  user_id?: string | null;
   title: string;
-  content: string;
+  comment: string;
   rating: number;
+  pros?: string | null;
+  cons?: string | null;
+  is_verified?: boolean | null;
   created_at: string | null;
-  helpful_count: number | null;
-  status: 'pending' | 'approved' | 'rejected' | null;
+  helpful_count?: number | null;
+  status?: 'pending' | 'approved' | 'rejected' | null;
   profiles?: { username: string; full_name: string; avatar_url: string };
   ai_agents?: { name:string; slug: string; logo_url: string };
   content_flags?: { reason: string; status: string }[];

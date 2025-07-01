@@ -1,16 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, memo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
+import { Agent as AgentType } from '@/integrations/supabase/types';
 import HeroBadge from './hero/HeroBadge';
 import SearchBar from './hero/SearchBar';
 import HeroStats from './hero/HeroStats';
+import { Skeleton } from '@/components/ui/skeleton';
 
-type Agent = Tables<'ai_agents'>;
+type Agent = AgentType;
 
 interface HeroSectionProps {
   onSearchResults?: (results: Agent[], query: string) => void;
 }
+
+const MemoHeroStats = memo(HeroStats);
+const MemoHeroBadge = memo(HeroBadge);
+const MemoSearchBar = memo(SearchBar);
 
 const HeroSection = ({ onSearchResults }: HeroSectionProps) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,7 +35,7 @@ const HeroSection = ({ onSearchResults }: HeroSectionProps) => {
   }, [searchQuery]);
 
   // Fetch real-time agent count
-  const { data: agentCount } = useQuery({
+  const { data: agentCount, isLoading: isAgentCountLoading } = useQuery({
     queryKey: ['agentCount'],
     queryFn: async () => {
       const { count, error } = await supabase
@@ -46,7 +51,7 @@ const HeroSection = ({ onSearchResults }: HeroSectionProps) => {
   });
 
   // Fetch real-time category count
-  const { data: categoryCount } = useQuery({
+  const { data: categoryCount, isLoading: isCategoryCountLoading } = useQuery({
     queryKey: ['categoryCount'],
     queryFn: async () => {
       const { count, error } = await supabase
@@ -202,39 +207,32 @@ const HeroSection = ({ onSearchResults }: HeroSectionProps) => {
       <div className="absolute top-8 left-8 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-8 right-8 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
       
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <HeroBadge agentCount={displayCount} />
-
-        {/* Main heading with animation - Reduced spacing */}
-        <div className="mb-6 animate-fade-in delay-200">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-            Find Your Perfect
-            <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              AI Assistant
-            </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col items-center text-center">
+          <MemoHeroBadge agentCount={displayCount} />
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 mt-2 leading-tight">
+            Discover the Best <span className="text-blue-600">AI Agents</span> for Every Need
           </h1>
-          <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
-            Discover powerful AI tools that boost your productivity. From chatbots to content creators, 
-            find the perfect assistant for your needs.
+          <p className="text-lg text-gray-700 mb-6 max-w-2xl">
+            Explore, compare, and find the perfect AI tools for productivity, creativity, automation, and more. Over <span className="font-bold text-blue-700">{isAgentCountLoading ? <span className="inline-block align-middle"><Skeleton className='h-5 w-16' /></span> : displayCount}</span> agents across <span className="font-bold text-blue-700">{isCategoryCountLoading ? <span className="inline-block align-middle"><Skeleton className='h-5 w-10' /></span> : displayCategoryCount}</span> categories.
           </p>
+          <div className="w-full max-w-2xl mb-8">
+            <Suspense fallback={<Skeleton className="h-12 w-full rounded-lg" />}>
+              <MemoSearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSearch={handleSearch}
+                onKeyDown={handleKeyDown}
+                isSearching={isSearching}
+                agentCount={displayCount}
+              />
+            </Suspense>
+          </div>
+          <MemoHeroStats agentCount={displayCount} categoryCount={displayCategoryCount} />
         </div>
-
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSearch={handleSearch}
-          onKeyDown={handleKeyDown}
-          isSearching={isSearching}
-          agentCount={displayCount}
-        />
-
-        <HeroStats 
-          agentCount={displayCount}
-          categoryCount={displayCategoryCount}
-        />
       </div>
     </section>
   );
 };
 
-export default HeroSection;
+export default memo(HeroSection);

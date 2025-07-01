@@ -12,8 +12,8 @@ interface AgentData {
 }
 
 interface AdvancedSEOProps {
-  type: 'homepage' | 'agent' | 'browse' | 'category';
-  data?: AgentData | Record<string, unknown>;
+  type: 'homepage' | 'agent' | 'browse' | 'category' | 'categories' | 'submit' | 'compare' | 'dashboard' | 'notfound';
+  data?: any;
   faqData?: Array<{ question: string; answer: string }>;
   howToData?: Array<{ step: string; description: string }>;
 }
@@ -145,6 +145,78 @@ const AdvancedSEO = ({ type, data, faqData, howToData }: AdvancedSEOProps) => {
           "description": "Complete list of AI agents and tools",
           "numberOfItems": Array.isArray(data) ? data.length : 0
         }
+      });
+    }
+
+    if (type === 'category' && data && typeof data === 'object' && 'display_name' in data) {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": data.display_name,
+        "description": data.description || '',
+        "url": `https://ai-agents-hub.com/categories/${data.slug}`
+      });
+    }
+
+    if (type === 'categories' && Array.isArray(data)) {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "AI Agent Categories",
+        "description": "Explore all AI agent categories.",
+        "url": "https://ai-agents-hub.com/categories",
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": data.map((cat: any, index: number) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": {
+              "@type": "Service",
+              "name": cat.display_name,
+              "description": cat.description
+            }
+          }))
+        }
+      });
+    }
+
+    if (type === 'submit') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Submit Your AI Agent - List Your AI Tool | AI Hub",
+        "description": "Submit your AI agent or tool to our directory. Get discovered by thousands of users looking for AI solutions. Quick submission process with fast review.",
+        "url": "https://ai-agents-hub.com/submit"
+      });
+    }
+
+    if (type === 'compare') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Compare AI Agents - Side-by-Side AI Tool Comparison | AI Hub",
+        "description": "Compare features, pricing, technical specs, and reviews of top AI agents. Find the best AI tool for your needs with our side-by-side comparison.",
+        "url": "https://ai-agents-hub.com/compare"
+      });
+    }
+
+    if (type === 'dashboard') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "User Dashboard | AI Hub",
+        "description": "Your personal dashboard for managing AI agent submissions, reviews, favorites, and profile settings.",
+        "url": "https://ai-agents-hub.com/dashboard"
+      });
+    }
+
+    if (type === 'notfound') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "404 - Page Not Found | AI Hub",
+        "description": "The page you're looking for doesn't exist or has been moved.",
+        "url": "https://ai-agents-hub.com/404"
       });
     }
 

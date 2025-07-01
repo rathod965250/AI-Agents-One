@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOBreadcrumbs from "@/components/SEOBreadcrumbs";
@@ -8,8 +7,12 @@ import BrowsePageHeader from '@/components/browse/BrowsePageHeader';
 import BrowsePageLayout from '@/components/browse/BrowsePageLayout';
 import { useBrowseAgents } from '@/hooks/useBrowseAgents';
 import { useBrowseSEO } from '@/hooks/useBrowseSEO';
+import { memo } from 'react';
 
-const Browse = () => {
+const MemoBrowsePageHeader = memo(BrowsePageHeader);
+const MemoBrowsePageLayout = memo(BrowsePageLayout);
+
+const Browse = memo(() => {
   const {
     searchTerm,
     setSearchTerm,
@@ -24,7 +27,10 @@ const Browse = () => {
     error
   } = useBrowseAgents();
 
-  const { title, description, keywords } = useBrowseSEO(agents);
+  const { title, description, keywords } = useBrowseSEO(agents || []);
+
+  const ratingFilterStr = String(ratingFilter);
+  const handleSetRatingFilter = (value: string) => setRatingFilter(Number(value));
 
   if (error) {
     return (
@@ -67,18 +73,18 @@ const Browse = () => {
         <Navigation />
         <SEOBreadcrumbs />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <BrowsePageHeader 
+          <MemoBrowsePageHeader 
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
           
-          <BrowsePageLayout
+          <MemoBrowsePageLayout
             categoryFilter={categoryFilter}
             setCategoryFilter={setCategoryFilter}
             pricingFilter={pricingFilter}
             setPricingFilter={setPricingFilter}
-            ratingFilter={ratingFilter}
-            setRatingFilter={setRatingFilter}
+            ratingFilter={ratingFilterStr}
+            setRatingFilter={handleSetRatingFilter}
             agents={agents}
             isLoading={isLoading}
           />
@@ -87,6 +93,6 @@ const Browse = () => {
       </div>
     </>
   );
-};
+});
 
 export default Browse;
